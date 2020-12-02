@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 )
-
-// cache of 2020 - expense
-// key is 2020 - expense
-// val is index
 
 // TwoSum2020 accepts and expense list and returns the product of the 2 items that total 2020
 func TwoSum2020(expenses []int) int {
@@ -30,7 +27,8 @@ func TwoSum2020(expenses []int) int {
 	return ans
 }
 
-func shittyTwoSum2020(expenses []int) int {
+// ShittyTwoSum2020 is a shitty version of a better function
+func ShittyTwoSum2020(expenses []int) int {
 	var ans int
 
 	for i := 0; i < len(expenses); i++ {
@@ -44,8 +42,8 @@ func shittyTwoSum2020(expenses []int) int {
 	return ans
 }
 
-// ThreeSum2020 accepts and expense list and returns the product of the 2 items that total 2020
-func ThreeSum2020(expenses []int) int {
+// ShittyThreeSum2020 is a shitty version of a better function
+func ShittyThreeSum2020(expenses []int) int {
 	var ans int
 
 	for i := 0; i < len(expenses); i++ {
@@ -61,8 +59,33 @@ func ThreeSum2020(expenses []int) int {
 	return ans
 }
 
+// ThreeSum2020 accepts an expense list and returns the product of the 3 items that total 2020
+func ThreeSum2020(expenses []int) int {
+	var ans int
+	sort.Ints(expenses)
+
+	for i := 0; i < len(expenses)-2; i++ {
+		l := i + 1
+		r := len(expenses) - 1
+		for l < r {
+			sum := expenses[i] + expenses[l] + expenses[r]
+			//fmt.Printf("i: %d l: %d r: %d | %d %d %d | %d\n", i, l, r, expenses[i], expenses[l], expenses[r], sum)
+			if sum == 2020 {
+				return expenses[i] * expenses[l] * expenses[r]
+			}
+			if sum < 2020 {
+				l++
+			} else {
+				r--
+			}
+		}
+	}
+
+	return ans
+}
+
 func main() {
-	var input, differences []int
+	var input []int
 
 	file, err := os.Open("./input.txt")
 	if err != nil {
@@ -74,7 +97,6 @@ func main() {
 	for scanner.Scan() {
 		i, _ := strconv.Atoi(scanner.Text())
 		input = append(input, i)
-		differences = append(differences, 2020-i)
 	}
 
 	if err := scanner.Err(); err != nil {
