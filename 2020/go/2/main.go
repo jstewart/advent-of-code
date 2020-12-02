@@ -9,32 +9,67 @@ import (
 	"strings"
 )
 
+type pwEnt struct {
+	Letter   string
+	Password string
+	Lower    int
+	Upper    int
+}
+
+func parsePwEnt(entry string) pwEnt {
+	x := strings.Split(entry, " ")
+	charRange, letter, pw := x[0], x[1], x[2]
+	xRange := strings.Split(charRange, "-")
+	xLower, xUpper := xRange[0], xRange[1]
+	lower, _ := strconv.Atoi(xLower)
+	upper, _ := strconv.Atoi(xUpper)
+
+	return pwEnt{letter[:1], pw, lower, upper}
+}
+
 // NumValidPasswords analyzes password/policies ans returns the number of valid ones
-func NumValidPasswords(pwent []string) int {
+func NumValidPasswords(passwd []string, matcher func(pwEnt) bool) int {
 	var ans int
 
-	for _, pwPolicy := range pwent {
-		matchingChars := 0
-		x := strings.Split(pwPolicy, " ")
-		charRange, letter, pw := x[0], x[1], x[2]
-		xRange := strings.Split(charRange, "-")
-		xLower, xUpper := xRange[0], xRange[1]
-		lower, _ := strconv.Atoi(xLower)
-		upper, _ := strconv.Atoi(xUpper)
+	for _, pwPolicy := range passwd {
+		entry := parsePwEnt(pwPolicy)
 
-		for _, c := range pw {
-			if string(c) == letter[:1] {
-				matchingChars++
-			}
-
-		}
-
-		if matchingChars >= lower && matchingChars <= upper {
+		if matcher(entry) {
 			ans++
 		}
+
 	}
 
 	return ans
+}
+
+func rangeMatcher(entry pwEnt) bool {
+	matchingChars, ans := 0, 0
+
+	for _, c := range entry.Password {
+		if string(c) == entry.Letter {
+			matchingChars++
+		}
+	}
+
+	if matchingChars >= entry.Lower && matchingChars <= entry.Upper {
+		ans++
+		return true
+	}
+
+	return false
+}
+
+func positionMatcher(entry pwEnt) bool {
+	s := strings.Split(entry.Password, "")
+	lower, upper := s[entry.Lower-1], s[entry.Upper-1]
+
+	if !(lower == entry.Letter && upper == entry.Letter) &&
+		(lower == entry.Letter || upper == entry.Letter) {
+		return true
+	}
+
+	return false
 }
 
 func main() {
@@ -55,5 +90,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Number of valid passwords: ", NumValidPasswords(input))
+	fmt.Println("Number of valid passwords (1): ", NumValidPasswords(input, rangeMatcher))
+	fmt.Println("Number of valid passwords (2): ", NumValidPasswords(input, positionMatcher))
 }
