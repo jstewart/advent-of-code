@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-func treesHit(grid [][]string) int {
+func treesHit(xFactor, yFactor int, grid [][]string) int {
 	trees, x, y := 0, 0, 0
 	xBounds, yBounds := len(grid[0]), len(grid)-1
 
 	for y < yBounds {
-		x += 3
-		y++
+		x += xFactor
+		y += yFactor
 
 		// Simulates a never ending edge
 		if x >= xBounds {
@@ -27,6 +27,23 @@ func treesHit(grid [][]string) int {
 	}
 
 	return trees
+}
+
+func calcSlopes(grid [][]string) int {
+	ans := 1
+	slopes := [][]int{
+		[]int{1, 1},
+		[]int{3, 1},
+		[]int{5, 1},
+		[]int{7, 1},
+		[]int{1, 2},
+	}
+
+	for _, pair := range slopes {
+		ans *= treesHit(pair[0], pair[1], grid)
+	}
+
+	return ans
 }
 
 func main() {
@@ -47,6 +64,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//fmt.Println("Trees hit: ", treesHit(grid))
-	fmt.Println("grid test", treesHit(grid))
+	fmt.Println("Part 1:", treesHit(3, 1, grid))
+	fmt.Println("Part 2:", calcSlopes(grid))
 }
