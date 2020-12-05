@@ -126,7 +126,6 @@ func numValidPassPorts(passports []map[string]string, validators []func(map[stri
 	for _, pp := range passports {
 		valid := true
 		for _, validator := range validators {
-			// TODO pass both validators
 			if !validator(pp) {
 				valid = false
 				break
