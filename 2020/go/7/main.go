@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -50,6 +51,53 @@ func partOne(graph map[string][]string) int {
 	return len(countParents("shiny gold", graph, map[string]bool{}))
 }
 
+type node struct {
+	count int
+	name  string
+}
+
+func preparePart2Graph(bags []string) map[string][]node {
+	m := make(map[string][]node)
+
+	for _, bag := range bags {
+		all := strings.Split(bag[:len(bag)-1], " bags contain ")
+		parent, children := all[0], strings.Split(all[1], ",")
+		var nodes []node
+
+		for _, child := range children {
+			if child == "no other bags" {
+				break
+			}
+
+			parts := strings.Split(strings.TrimSpace(child), " ")
+			count, _ := strconv.Atoi(parts[0])
+			color := strings.Join(parts[1:len(parts)-1], " ")
+			nodes = append(nodes, node{count: count, name: color})
+		}
+		m[parent] = nodes
+	}
+	return m
+}
+
+func bagCountTraversal(color string, graph map[string][]node) int {
+	count := 1
+	edges := graph[color]
+
+	if len(edges) == 0 {
+		return count
+	}
+
+	for _, edge := range edges {
+		count += (edge.count * bagCountTraversal(edge.name, graph))
+	}
+
+	return count
+}
+
+func partTwo(graph map[string][]node) int {
+	return bagCountTraversal("shiny gold", graph) - 1
+}
+
 func main() {
 	var input []string
 
@@ -69,6 +117,7 @@ func main() {
 	}
 
 	graph := prepareBagsGraph(input)
-
+	graph2 := preparePart2Graph(input)
+	fmt.Println("Part 2:", partTwo(graph2))
 	fmt.Println("Part 1:", partOne(graph))
 }
