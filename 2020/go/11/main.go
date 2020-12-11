@@ -96,6 +96,39 @@ func markSeat(loc coordinate, read, write *[][]string) {
 	}
 }
 
+func markSeat2(loc coordinate, read, write *[][]string) {
+	/*  Rules:
+	 * 5 or more VISIBLE occupied seats in all 8 directions
+	 */
+	square := (*read)[loc.y][loc.x]
+	if square == "." {
+		return
+	}
+
+	var occupied int
+	// starting position
+	// left, right
+	// up, down
+	// up/left
+	// up/right
+	// down/left
+	// down/right
+	// stop if hit L/# or edge
+	// occupied++ if #
+	// for _, x := range adjacents {
+	// 	if (*read)[x.y][x.x] == "#" {
+	// 		occupied++
+	// 	}
+	// }
+
+	if square == "L" && occupied == 0 {
+		(*write)[loc.y][loc.x] = "#"
+	}
+	if square != "." && occupied >= 5 {
+		(*write)[loc.y][loc.x] = "L"
+	}
+}
+
 func partOne(read, write *[][]string, changed bool) int {
 	var occupied int
 
