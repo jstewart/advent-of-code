@@ -100,33 +100,101 @@ func markSeat2(loc coordinate, read, write *[][]string) {
 	/*  Rules:
 	 * 5 or more VISIBLE occupied seats in all 8 directions
 	 */
+	var occupied int
 	square := (*read)[loc.y][loc.x]
 	if square == "." {
 		return
 	}
 
-	var occupied int
-	// starting position
-	// left, right
-	// up, down
-	// up/left
-	// up/right
-	// down/left
-	// down/right
-	// stop if hit L/# or edge
-	// occupied++ if #
-	// for _, x := range adjacents {
-	// 	if (*read)[x.y][x.x] == "#" {
-	// 		occupied++
-	// 	}
-	// }
+	// up
+	for i := loc.y - 1; i >= 0; i-- {
+		if (*read)[i][loc.x] == "L" {
+			break
+		}
+		if (*read)[i][loc.x] == "#" {
+			occupied++
+			break
+		}
+	}
+	// down
+	for i := loc.y + 1; i < len(*read); i++ {
+		if (*read)[i][loc.x] == "L" {
+			break
+		}
+		if (*read)[i][loc.x] == "#" {
+			occupied++
+			break
+		}
+	}
+	// left
+	for i := loc.x - 1; i >= 0; i-- {
+		if (*read)[loc.y][i] == "L" {
+			break
+		}
+		if (*read)[loc.y][i] == "#" {
+			occupied++
+			break
+		}
+	}
+	// right
+	for i := loc.x + 1; i < len((*read)[0]); i++ {
+		if (*read)[loc.y][i] == "L" {
+			break
+		}
+		if (*read)[loc.y][i] == "#" {
+			occupied++
+			break
+		}
+	}
 
+	// up/left
+	for i, j := loc.y-1, loc.x-1; i >= 0 && j >= 0; i, j = i-1, j-1 {
+		if (*read)[i][j] == "L" {
+			break
+		}
+		if (*read)[i][j] == "#" {
+
+			occupied++
+			break
+		}
+	}
+	// up/right
+	for i, j := loc.y-1, loc.x+1; i >= 0 && j < len((*read)[0]); i, j = i-1, j+1 {
+		if (*read)[i][j] == "L" {
+			break
+		}
+		if (*read)[i][j] == "#" {
+			occupied++
+			break
+		}
+	}
+	// down/left
+	for i, j := loc.y+1, loc.x-1; i < len(*read) && j >= 0; i, j = i+1, j-1 {
+		if (*read)[i][j] == "L" {
+			break
+		}
+		if (*read)[i][j] == "#" {
+			occupied++
+			break
+		}
+	}
+	// down/right
+	for i, j := loc.y+1, loc.x+1; i < len(*read) && j < len((*read)[0]); i, j = i+1, j+1 {
+		if (*read)[i][j] == "L" {
+			break
+		}
+		if (*read)[i][j] == "#" {
+			occupied++
+			break
+		}
+	}
 	if square == "L" && occupied == 0 {
 		(*write)[loc.y][loc.x] = "#"
 	}
 	if square != "." && occupied >= 5 {
 		(*write)[loc.y][loc.x] = "L"
 	}
+
 }
 
 func partOne(read, write *[][]string, changed bool) int {
@@ -136,6 +204,33 @@ func partOne(read, write *[][]string, changed bool) int {
 		for row := 0; row < len(*read); row++ {
 			for col := 0; col < len((*read)[0]); col++ {
 				markSeat(coordinate{x: col, y: row}, read, write)
+			}
+		}
+		if deepEqual(*read, *write) {
+			changed = false
+		} else {
+			tmp := deepCopy(*write)
+			read = &tmp
+		}
+	}
+
+	for _, row := range *read {
+		for _, col := range row {
+			if col == "#" {
+				occupied++
+			}
+		}
+	}
+	return occupied
+}
+
+func partTwo(read, write *[][]string, changed bool) int {
+	var occupied int
+
+	for changed {
+		for row := 0; row < len(*read); row++ {
+			for col := 0; col < len((*read)[0]); col++ {
+				markSeat2(coordinate{x: col, y: row}, read, write)
 			}
 		}
 		if deepEqual(*read, *write) {
@@ -169,4 +264,5 @@ func main() {
 	}
 	write := deepCopy(read)
 	fmt.Println("part 1:", partOne(&read, &write, true))
+	fmt.Println("part 2:", partTwo(&read, &write, true))
 }
