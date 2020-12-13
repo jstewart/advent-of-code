@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func earliestDeparture(ts int, busIds []int) int {
+func earliestDeparture(ts int, busIds map[int]int) int {
 	counter := ts
 
 	for {
@@ -21,6 +21,28 @@ func earliestDeparture(ts int, busIds []int) int {
 	}
 }
 
+func departuresMatch(busses map[int]int, lowest int) int64 {
+	var ts int64
+
+	for {
+		allMatch := true
+
+		ts += int64(lowest)
+		for offset, busID := range busses {
+			if (ts+int64(offset))%int64(busID) != 0 {
+				allMatch = false
+				break
+			}
+		}
+
+		if allMatch {
+			break
+		}
+
+	}
+	return ts
+}
+
 func main() {
 	data, err := ioutil.ReadFile("./input.txt")
 	lines := strings.Split(string(data), "\n")
@@ -29,13 +51,17 @@ func main() {
 	}
 
 	earliest, _ := strconv.Atoi(lines[0])
-	var busIds []int
-	for _, id := range strings.Split(lines[1], ",") {
+	busIds, lowest := make(map[int]int), 99999999
+	for idx, id := range strings.Split(lines[1], ",") {
 		if id != "x" {
 			bus, _ := strconv.Atoi(id)
-			busIds = append(busIds, bus)
+			busIds[idx] = bus
+			if bus < lowest {
+				lowest = bus
+			}
 		}
 	}
 
 	fmt.Println("part 1:", earliestDeparture(earliest, busIds))
+	fmt.Println("part 2:", departuresMatch(busIds, lowest))
 }
